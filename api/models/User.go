@@ -42,7 +42,7 @@ func (u *User) BeforeSave() error {
 	return nil
 }
 
-// Prepare prepare user info
+// Prepare prepare user info and add created_at and updated_at
 func (u *User) Prepare() {
 	u.ID = 0
 	u.Nickname = html.EscapeString(strings.TrimSpace(u.Nickname))

@@ -15,7 +15,7 @@ func JSON(w http.ResponseWriter, statusCode int, data interface{}) {
 	}
 }
 
-// ERROR package error information.
+// ERROR package error information using json format.
 func ERROR(w http.ResponseWriter, statusCode int, err error) {
 	if err != nil {
 		JSON(w, statusCode, struct {

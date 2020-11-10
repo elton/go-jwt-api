@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/elton/go-jwt-api/api/models"
 	"github.com/gorilla/mux"
@@ -29,6 +30,17 @@ func (server *Server) Initialize(DbDriver, DbUser, DbPassword, DbHost, DbPort, D
 		}
 	}
 
+	// database connection pool settings.
+	// refer to https://www.alexedwards.net/blog/configuring-sqldb
+	sqlDB, _ := server.DB.DB()
+	// SetMaxIdleConns 用于设置连接池中空闲连接的最大数量。
+	sqlDB.SetMaxIdleConns(64)
+
+	// SetMaxOpenConns 设置打开数据库连接的最大数量。
+	sqlDB.SetMaxOpenConns(64)
+
+	// SetConnMaxLifetime 设置了连接可复用的最大时间。
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 	// database migration
 	server.DB.Debug().AutoMigrate(&models.User{})
 	server.Router = mux.NewRouter()

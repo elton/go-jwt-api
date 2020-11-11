@@ -97,6 +97,7 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnauthorized, err)
 		return
 	}
+	// when a user what to update other user's information, will be raised a error.
 	if tokenID != uint32(uid) {
 		responses.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
 		return

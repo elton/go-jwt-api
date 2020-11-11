@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Server struct {
@@ -21,7 +22,13 @@ func (server *Server) Initialize(DbDriver, DbUser, DbPassword, DbHost, DbPort, D
 	var err error
 	if DbDriver == "mysql" {
 		DBURL := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", DbUser, DbPassword, DbHost, DbPort, DbName)
-		server.DB, err = gorm.Open(mysql.Open(DBURL), &gorm.Config{PrepareStmt: true, DisableForeignKeyConstraintWhenMigrating: true})
+		// GORM 定义了这些日志级别：Silent、Error、Warn、Info
+		server.DB, err = gorm.Open(mysql.Open(DBURL), &gorm.Config{
+			Logger:                                   logger.Default.LogMode(logger.Info),
+			PrepareStmt:                              true,
+			DisableForeignKeyConstraintWhenMigrating: true,
+			// SkipDefaultTransaction:                   true,
+		})
 		if err != nil {
 			fmt.Printf("Cannot connect to %s database", DbDriver)
 			log.Fatal("This is the error: ", err)
@@ -34,10 +41,10 @@ func (server *Server) Initialize(DbDriver, DbUser, DbPassword, DbHost, DbPort, D
 	// refer to https://www.alexedwards.net/blog/configuring-sqldb
 	sqlDB, _ := server.DB.DB()
 	// SetMaxIdleConns 用于设置连接池中空闲连接的最大数量。
-	sqlDB.SetMaxIdleConns(25)
+	sqlDB.SetMaxIdleConns(64)
 
 	// SetMaxOpenConns 设置打开数据库连接的最大数量。
-	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetMaxOpenConns(64)
 
 	// SetConnMaxLifetime 设置了连接可复用的最大时间。
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)

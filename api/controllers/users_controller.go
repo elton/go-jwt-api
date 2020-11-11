@@ -24,8 +24,7 @@ func (server *Server) CreateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
-	// hash user password
-	user.BeforeSave()
+
 	user.Prepare()
 	err = user.Validate("")
 	if err != nil {

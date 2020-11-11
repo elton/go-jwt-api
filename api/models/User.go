@@ -133,9 +133,14 @@ func (u *User) FindUserByID(db *gorm.DB, uid uint32) (*User, error) {
 // UpdateAUser update a user information in database by user id.
 func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
 
+	hashedPassword, err := Hash(u.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	db = db.Model(&User{}).Where("id = ?", uid).Updates(
 		map[string]interface{}{
-			"password": u.Password,
+			"password": string(hashedPassword),
 			"nickname": u.Nickname,
 			"email":    u.Email,
 		},
@@ -144,7 +149,7 @@ func (u *User) UpdateAUser(db *gorm.DB, uid uint32) (*User, error) {
 		return &User{}, db.Error
 	}
 	// This is the display the updated user
-	err := db.Model(&User{}).Take(&u).Error
+	err = db.Model(&User{}).Take(&u).Error
 	if err != nil {
 		return &User{}, err
 	}

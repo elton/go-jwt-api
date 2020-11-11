@@ -2,11 +2,13 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
 
+	"github.com/elton/go-jwt-api/api/auth"
 	"github.com/elton/go-jwt-api/api/models"
 	"github.com/elton/go-jwt-api/api/responses"
 	"github.com/elton/go-jwt-api/api/utils/formaterror"
@@ -88,6 +90,18 @@ func (server *Server) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		responses.ERROR(w, http.StatusUnprocessableEntity, err)
 		return
 	}
+
+	// Authenticate with user token
+	tokenID, err := auth.ExtractTokenID(r)
+	if err != nil {
+		responses.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+	if tokenID != uint32(uid) {
+		responses.ERROR(w, http.StatusUnauthorized, errors.New(http.StatusText(http.StatusUnauthorized)))
+		return
+	}
+
 	user.Prepare()
 	err = user.Validate("update")
 	if err != nil {

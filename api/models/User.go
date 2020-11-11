@@ -19,6 +19,7 @@ type User struct {
 	Password  string    `gorm:"size:100;not null;unique" json:"password"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
+	Deleted   gorm.DeletedAt
 }
 
 // Hash returns a crypted password
